@@ -5,6 +5,7 @@ const userRouter = Router();
 
 userRouter.get("", userController.getAllUsers);
 userRouter.get("/:id", userController.getUserById);
+userRouter.get("/test/:email", userController.getUserByEmail);
 userRouter.patch("/:id", userController.updateUser);
 userRouter.delete("/:id", userController.deleteUser);
 userRouter.post("", userController.createUser);
