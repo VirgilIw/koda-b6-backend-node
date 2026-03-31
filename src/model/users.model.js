@@ -2,7 +2,7 @@
  * @typedef {Object} User
  * @property {number} id
  * @property {string} email
- * @property  {string} password
+ * @property {string} password
  */
 
 /**
@@ -28,8 +28,8 @@ function findUserIndex(id) {
 }
 
 /**
- * 
- * @returns {User}
+ *
+ * @returns {User[]}
  */
 export async function getAllUsers() {
   return usersData;
@@ -53,9 +53,9 @@ let lastId = 10;
 /**
  *
  * @param {User} data
+ * @returns {User}
  */
 export async function createUser(data) {
-
   const newUser = {
     id: ++lastId,
     ...data,
@@ -70,6 +70,7 @@ export async function createUser(data) {
  *
  * @param {number} id
  * @param {User} data
+ * @returns {User}
  */
 export async function updateUser(id, data) {
   const index = findUserIndex(id);
