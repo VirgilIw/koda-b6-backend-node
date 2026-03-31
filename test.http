@@ -1,0 +1,31 @@
+GET /users HTTP/1.1
+Host: localhost:8888
+
+###
+GET /users/11 HTTP/1.1
+Host: localhost:8888
+
+###
+POST /users HTTP/1.1
+Host: localhost:8888
+Content-Type: application/json
+
+{
+    "email": "BARUNICH@gmail.com",
+    "password": "hsadfa"
+}
+
+###
+PATCH /users/10 HTTP/1.1
+Host: localhost:8888
+Content-Type: application/json
+
+{
+    "email": "berubah@gmail.com",
+    "password": "jkasdbva"
+}
+
+###
+DELETE  /users/10 HTTP/1.1
+Host: localhost:8888
+
