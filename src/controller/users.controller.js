@@ -8,7 +8,7 @@ import { constants } from "node:http2";
  */
 export async function getAllUsers(req, res) {
   const user = await userModel.getAllUsers();
-  res.json({
+  res.status(constants.HTTP_STATUS_OK).json({
     success: "success",
     message: "list all users",
     result: user,
