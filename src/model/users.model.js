@@ -31,8 +31,25 @@ function findUserIndex(id) {
  *
  * @returns {User[]}
  */
-export async function getAllUsers() {
+export function findAll() {
   return usersData;
+}
+
+export async function getAllUsers(page = 1, limit = 5) {
+  const users = findAll();
+
+  const total = users.length;
+  const start = (page - 1) * limit;
+  const end = start + limit;
+
+  const data = users.slice(start, end);
+
+  return {
+    data,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 /**
@@ -48,6 +65,23 @@ export async function getUserById(id) {
   }
 }
 
+/**
+ * @param {string} email
+ * @returns {User}
+ */
+export async function getUserByEmail(email, cb) {
+  const found = usersData.filter((user) => user.email == email);
+  if (found.length === 1) {
+    return found[0];
+  } else {
+    if (cb) {
+      cb("user not found");
+    } else {
+      throw new Error("user not found");
+    }
+  }
+}
+
 let lastId = 10;
 
 /**
@@ -56,14 +90,21 @@ let lastId = 10;
  * @returns {User}
  */
 export async function createUser(data) {
-  const newUser = {
-    id: ++lastId,
-    ...data,
-  };
+  try {
+    const get = await getUserByEmail(data.email);
+    if (get.email === data.email) {
+      throw new Error("user already exists");
+    }
+  } catch {
+    const newUser = {
+      id: ++lastId,
+      ...data,
+    };
 
-  usersData.push(newUser);
+    usersData.push(newUser);
 
-  return newUser;
+    return newUser;
+  }
 }
 
 /**

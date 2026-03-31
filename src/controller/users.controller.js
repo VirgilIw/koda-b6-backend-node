@@ -7,12 +7,22 @@ import { constants } from "node:http2";
  * @param {import("express").Response} res
  */
 export async function getAllUsers(req, res) {
-  const user = await userModel.getAllUsers();
-  res.status(constants.HTTP_STATUS_OK).json({
-    success: "success",
-    message: "list all users",
-    result: user,
-  });
+  try {
+    const page = parseInt(req.query.page) ;
+    const limit = parseInt(req.query.limit);
+
+    const result = await userModel.getAllUsers(page, limit);
+
+    res.status(constants.HTTP_STATUS_OK).json({
+      succes: true,
+      message: "success get all data",
+      result: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 }
 
 /**
