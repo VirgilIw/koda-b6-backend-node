@@ -4,8 +4,10 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "dev": "node --watch src/main.js",
-    "start": "node src/main.js"
+    "dev": "node --env-file=.env --watch src/main.js",
+    "start": "node --env-file=.env src/main.js",
+    "lint": "eslint \"src/**/*.js\"",
+    "lint:fix": "eslint \"src/**/*.js\" --fix"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +15,10 @@
   "type": "module",
   "dependencies": {
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0"
   }
 }

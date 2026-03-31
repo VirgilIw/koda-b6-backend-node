@@ -17,6 +17,8 @@ app.get("/", function (req, res) {
   });
 });
 
-app.listen(8888, function () {
-  console.log(`app listening on port 8888`);
+const PORT = process.env.PORT
+
+app.listen(PORT, function () {
+  console.log(`app listening on port ${PORT}`);
 });
