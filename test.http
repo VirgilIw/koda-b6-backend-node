@@ -1,11 +1,24 @@
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIzLCJlbWFpbCI6Imd1ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzc1MDI2NjEyfQ.v0H9R1VL83pHg8JYEC2zDsM3PWtTJyhfmwVEE_2L5uw
 @url = localhost:8888
+
+# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE0LCJpYXQiOjE3NzUwMTIwMTh9.heKXML8dPF7cOUTbc4QxtWWWe66wiHiEbkbGouhIjc0
 
 POST /auth/register HTTP/1.1
 Host: {{url}}
 Content-Type: application/json
 
 {
-    "email": "BARUNICH@gmail.com",
+    "email": "BARUNICHasasd@gmail.com",
+    "password": "hsadfa"
+}
+
+###
+POST /auth/register HTTP/1.1
+Host: {{url}}
+Content-Type: application/json
+
+{
+    "email": "guest@gmail.com",
     "password": "hsadfa"
 }
 
@@ -15,13 +28,23 @@ Host: {{url}}
 Content-Type: application/json
 
 {
-    "email": "BARUNICH@gmail.com",
+    "email": "BARUNICHasasd@gmail.com",
     "password": "hsadfa"
 }
 
 ###
+POST /auth/login HTTP/1.1
+Host: {{url}}
+Content-Type: application/json
+
+{
+    "email": "guest@gmail.com",
+    "password": "hsadfa"
+}
+###
 GET /admin/users HTTP/1.1
 Host: {{url}}
+Authorization: Bearer {{token}}
 
 ###
 GET /admin/users/test/test@gmail.com HTTP/1.1
@@ -54,3 +77,14 @@ Content-Type: application/json
 DELETE  /users/10 HTTP/1.1
 Host: localhost:8888
 
+###
+GET /main/reviews HTTP/1.1
+Host: {{url}}
+
+###
+GET /main/products/recommended HTTP/1.1
+Host: {{url}}
+
+###
+GET /main/products/search?name=noncoffee&page=1 HTTP/1.1
+Host: {{url}}

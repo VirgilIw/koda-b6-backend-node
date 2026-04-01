@@ -3,6 +3,7 @@
  * @property {number} id
  * @property {string} email
  * @property {string} password
+ * @property {string} role
  */
 
 import { pool } from "../lib/db.js";
@@ -47,7 +48,7 @@ export async function getUserById(id) {
  */
 export async function getUserByEmail(email) {
     const sql = `
-    SELECT id, email, password 
+    SELECT id, email, password, role 
     FROM users 
     WHERE email = $1
   `;
@@ -64,3 +65,9 @@ export async function getUserByEmail(email) {
 }
 
 
+
+// const data ="test"
+
+// function test(data) {
+//     console.log(`test, ${data}`)
+// }

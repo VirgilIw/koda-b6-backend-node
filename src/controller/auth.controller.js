@@ -1,3 +1,5 @@
+import { GenerateHash, VerifyHash } from "../lib/hash.js";
+import { GenerateToken } from "../lib/jwt.js";
 import * as authModel from "../model/auth.model.js";
 import * as userModel from "../model/users.model.js";
 import { constants } from "node:http2";
@@ -11,13 +13,19 @@ export async function login(req, res) {
 
     try {
         const user = await userModel.getUserByEmail(email);
-        if (password == user.password) {
+        if (await VerifyHash(user.password, password)) {
+            const token = GenerateToken({
+                userId: user.id,
+                email: user.email,
+                role: user.role,
+            });
             res.json({
                 success: true,
                 message: "login success",
                 result: {
-                    id: user.id,
+                    token,
                     email: user.email,
+                    role: user.role,
                 },
             });
         } else {
@@ -38,13 +46,23 @@ export async function login(req, res) {
  */
 export async function register(req, res) {
     const data = req.body;
-
     try {
+        if (data.password) {
+            data.password = await GenerateHash(data.password);
+        }
+
         const user = await authModel.register(data);
+
+        const token = GenerateToken({
+            userId: user.id,
+        });
+
         res.status(constants.HTTP_STATUS_CREATED).json({
             success: true,
             message: "register success",
-            result: user,
+            result: {
+                token,
+            },
         });
     } catch (error) {
         res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
