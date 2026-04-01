@@ -46,10 +46,29 @@ export async function login(req, res) {
  */
 export async function register(req, res) {
     const data = req.body;
+
     try {
-        if (data.password) {
-            data.password = await GenerateHash(data.password);
+        const { password, confirmPassword } = data;
+        // console.log(password, confirmPassword);
+        if (!password || !confirmPassword) {
+            return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
+                success: false,
+                message: "password and confirm password are required",
+            });
         }
+
+        if (password !== confirmPassword) {
+            return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
+                success: false,
+                message: "password does not match",
+            });
+        }
+
+        // hapus confirmPassword biar gak masuk DB
+        delete data.confirmPassword;
+
+        // hash password
+        data.password = await GenerateHash(password);
 
         const user = await authModel.register(data);
 
@@ -57,15 +76,18 @@ export async function register(req, res) {
             userId: user.id,
         });
 
-        res.status(constants.HTTP_STATUS_CREATED).json({
+        return res.status(constants.HTTP_STATUS_CREATED).json({
             success: true,
             message: "register success",
             result: {
                 token,
+                id: user.id,
+                fullname: user.fullname,
+                email: user.email,
             },
         });
     } catch (error) {
-        res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
+        return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
             success: false,
             message: "failed to register",
             error: error.message,
