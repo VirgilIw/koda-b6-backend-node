@@ -65,20 +65,50 @@ export async function getRecommendedProducts(req, res) {
  *
  */
 export async function searchProducts(req, res) {
-  try {
-    const result = await mainModel.searchProducts(req.query);
+    try {
+        const result = await mainModel.searchProducts(req.query);
 
-    res.status(constants.HTTP_STATUS_OK).json({
-      success: true,
-      message: "success search products",
-      data: result,
-    });
-  } catch (error) {
-    console.error(error);
+        res.status(constants.HTTP_STATUS_OK).json({
+            success: true,
+            message: "success search products",
+            data: result,
+        });
+    } catch (error) {
+        console.error(error);
 
-    res.status(500).json({
-      success: false,
-      message: "internal server error",
-    });
-  }
+        res.status(500).json({
+            success: false,
+            message: "internal server error",
+        });
+    }
+}
+
+/**
+ * Get detail product by it ID.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+export async function getDetailProductById(req, res) {
+    try {
+        const id = parseInt(req.params.id);
+
+        const result = await mainModel.getDetailProductById(id);
+
+        if (!result) {
+            return res.status(constants.HTTP_STATUS_NOT_FOUND).json({
+                success: false,
+                message: "Product not found",
+            });
+        }
+
+        return res.json({
+            success: true,
+            data: result,
+        });
+    } catch {
+        return res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 }
