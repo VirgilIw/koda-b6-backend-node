@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} User
+ * @typedef {Object} Product
  * @property {number} id
  * @property {string} name
  * @property {string} image
@@ -12,7 +12,7 @@ import { pool } from "../lib/db.js";
 
 /**
  * Get latest reviews
- * @returns {User}
+ * @returns {Product[]}
  */
 export async function getReviews() {
     const query = `
@@ -26,6 +26,10 @@ export async function getReviews() {
     return result;
 }
 
+/**
+ * Get recommended products
+ * @returns {Product[]}
+ */
 export async function getRecommendedProducts() {
     const query = `SELECT 
     p.id,
@@ -54,75 +58,80 @@ LIMIT 4;`;
     return result;
 }
 
+/**
+ * Search products with filters & pagination
+ * @param {Object} reqQuery
+ * @returns {Promise<{ products: Object[], totalCount: number }>}
+ */
 export async function searchProducts(reqQuery) {
-  let {
-    page = 1,
-    name,
-    category,
-    minPrice,
-    maxPrice,
-    isFlashSale,
-    isBuy1Get1,
-    isBirthdayPackage,
-    cheap,
-    recommended,
-  } = reqQuery;
+    let {
+        page = 1,
+        name,
+        category,
+        minPrice,
+        maxPrice,
+        isFlashSale,
+        isBuy1Get1,
+        isBirthdayPackage,
+        cheap,
+        recommended,
+    } = reqQuery;
 
-  page = Number(page) || 1;
+    page = Number(page) || 1;
 
-  // --- WHERE ---
-  let whereClause = "WHERE 1=1";
-  const args = [];
-  let i = 1;
+    // --- WHERE ---
+    let whereClause = "WHERE 1=1";
+    const args = [];
+    let i = 1;
 
-  if (name) {
-    whereClause += ` AND p.name ILIKE $${i}`;
-    args.push(`%${name}%`);
-    i++;
-  }
+    if (name) {
+        whereClause += ` AND p.name ILIKE $${i}`;
+        args.push(`%${name}%`);
+        i++;
+    }
 
-  if (category) {
-    whereClause += `
+    if (category) {
+        whereClause += `
       AND EXISTS (
         SELECT 1 FROM product_categories pc2
         JOIN categories c2 ON c2.id = pc2.categories_id
         WHERE pc2.product_id = p.id
         AND c2.categories_name ILIKE $${i}
       )`;
-    args.push(`%${category}%`);
-    i++;
-  }
+        args.push(`%${category}%`);
+        i++;
+    }
 
-  if (minPrice) {
-    whereClause += ` AND p.price >= $${i}`;
-    args.push(Number(minPrice));
-    i++;
-  }
+    if (minPrice) {
+        whereClause += ` AND p.price >= $${i}`;
+        args.push(Number(minPrice));
+        i++;
+    }
 
-  if (maxPrice) {
-    whereClause += ` AND p.price <= $${i}`;
-    args.push(Number(maxPrice));
-    i++;
-  }
+    if (maxPrice) {
+        whereClause += ` AND p.price <= $${i}`;
+        args.push(Number(maxPrice));
+        i++;
+    }
 
-  if (isFlashSale === "true") {
-    whereClause += ` AND p.is_flash_sale = true`;
-  }
+    if (isFlashSale === "true") {
+        whereClause += ` AND p.is_flash_sale = true`;
+    }
 
-  if (isBuy1Get1 === "true") {
-    whereClause += ` AND p.is_buy1get1 = true`;
-  }
+    if (isBuy1Get1 === "true") {
+        whereClause += ` AND p.is_buy1get1 = true`;
+    }
 
-  if (isBirthdayPackage === "true") {
-    whereClause += ` AND p.is_birthday_package = true`;
-  }
+    if (isBirthdayPackage === "true") {
+        whereClause += ` AND p.is_birthday_package = true`;
+    }
 
-  if (cheap === "true") {
-    whereClause += ` AND p.price <= 20000`;
-  }
+    if (cheap === "true") {
+        whereClause += ` AND p.price <= 20000`;
+    }
 
-  if (recommended === "true") {
-    whereClause += `
+    if (recommended === "true") {
+        whereClause += `
       AND EXISTS (
         SELECT 1
         FROM testimonials t2
@@ -130,10 +139,10 @@ export async function searchProducts(reqQuery) {
         GROUP BY t2.product_id
         HAVING AVG(t2.rating) >= 4.7
       )`;
-  }
+    }
 
-  // --- CTE ---
-  const cte = `
+    // --- CTE ---
+    const cte = `
     WITH filtered_products AS (
       SELECT DISTINCT p.id
       FROM products p
@@ -144,17 +153,17 @@ export async function searchProducts(reqQuery) {
     )
   `;
 
-  // --- COUNT ---
-  const countQuery = `${cte} SELECT COUNT(*) FROM filtered_products;`;
-  const countRes = await pool.query(countQuery, args);
-  const totalCount = Number(countRes.rows[0].count);
+    // --- COUNT ---
+    const countQuery = `${cte} SELECT COUNT(*) FROM filtered_products;`;
+    const countRes = await pool.query(countQuery, args);
+    const totalCount = Number(countRes.rows[0].count);
 
-  // --- PAGINATION ---
-  const limit = 6;
-  const offset = (page - 1) * limit;
+    // --- PAGINATION ---
+    const limit = 6;
+    const offset = (page - 1) * limit;
 
-  // --- DATA QUERY ---
-  const dataQuery = `
+    // --- DATA QUERY ---
+    const dataQuery = `
     ${cte}
     SELECT 
       p.id,
@@ -181,15 +190,74 @@ export async function searchProducts(reqQuery) {
     LIMIT $${i} OFFSET $${i + 1};
   `;
 
-  const dataArgs = [...args, limit, offset];
+    const dataArgs = [...args, limit, offset];
 
-  const { rows } = await pool.query(dataQuery, dataArgs);
+    const { rows } = await pool.query(dataQuery, dataArgs);
 
-  const products = rows.map((p) => ({
-    ...p,
-    categories: p.categories || [],
-    images: p.images || [],
-  }));
+    const products = rows.map((p) => ({
+        ...p,
+        categories: p.categories || [],
+        images: p.images || [],
+    }));
 
-  return { products, totalCount };
+    return { products, totalCount };
+}
+
+/**
+ *
+ * @param {number} id
+ * @returns {Product}
+ */
+export async function getDetailProductById(id) {
+    const query = `
+    SELECT 
+    p.id,
+    p.name,
+    p.price,
+    p.description,
+    AVG(t.rating) AS rating,
+    COUNT(t.message) AS total_reviews,
+    (
+        SELECT ARRAY_AGG(v.variant_name ORDER BY v.id)
+        FROM product_variants pv
+        JOIN variants v ON v.id = pv.variant_id
+        WHERE pv.product_id = p.id
+    ) AS variants,
+    (
+        SELECT ARRAY_AGG(v.additional_price ORDER BY v.id)
+        FROM product_variants pv
+        JOIN variants v ON v.id = pv.variant_id
+        WHERE pv.product_id = p.id
+    ) AS variant_prices,
+    (
+        SELECT ARRAY_AGG(s.size_name ORDER BY s.id)
+        FROM product_sizes ps
+        JOIN sizes s ON s.id = ps.size_id
+        WHERE ps.product_id = p.id
+    ) AS sizes,
+    (
+        SELECT ARRAY_AGG(s.additional_price ORDER BY s.id)
+        FROM product_sizes ps
+        JOIN sizes s ON s.id = ps.size_id
+        WHERE ps.product_id = p.id
+    ) AS size_prices,
+    (
+        SELECT ARRAY_AGG(i.image_path ORDER BY i.id)
+        FROM product_images pi
+        JOIN images i ON i.id = pi.image_id
+        WHERE pi.product_id = p.id
+    ) AS images
+FROM products p
+LEFT JOIN testimonials t ON t.product_id = p.id
+WHERE p.id = $1
+GROUP BY p.id, p.name, p.price, p.description;
+`;
+
+    const data = [id];
+
+    const {
+        rows: [result],
+    } = await pool.query(query, data);
+
+    return result;
 }
