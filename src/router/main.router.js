@@ -1,6 +1,5 @@
 import { Router } from "express";
 import * as mainController from "../controller/main.controller.js";
-import * as profileController from "../controller/profile.controller.js";
 import { constants } from "node:http2";
 import docsRouter from "./docs.js";
 import express from "express";
@@ -96,6 +95,4 @@ mainRouter.get("/product/recommended", mainController.getRecommendedProducts);
  */
 mainRouter.get("/product/:id", mainController.getDetailProductById);
 
-mainRouter.get("/profile", profileController.getProfile);
-mainRouter.get("/profile", profileController.getProfile);
 export default mainRouter;
