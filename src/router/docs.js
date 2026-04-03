@@ -20,7 +20,7 @@ const options = {
                     type: "http",
                     scheme: "bearer",
                     bearerFormat: "JWT",
-                    description: "Masukkan token dengan format: Bearer 'token'",
+                    description: "Masukkan JWT token saja (tanpa Bearer)",
                 },
             },
         },
