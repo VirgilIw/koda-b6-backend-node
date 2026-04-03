@@ -27,7 +27,7 @@ export async function getAllUsers() {
  */
 export async function getUserById(id) {
     const sql = `
- select id, email, password from users
+ select id, email, role from users
  where id = $1
  order by id asc;`;
 
@@ -36,9 +36,7 @@ export async function getUserById(id) {
     const {
         rows: [user],
     } = await pool.query(sql, values);
-    if (!user) {
-        throw new Error("user not found");
-    }
+
     return user;
 }
 
@@ -61,13 +59,39 @@ export async function getUserByEmail(email) {
         throw new Error("user not found");
     }
 
-    return data[0]; 
+    return data[0];
 }
 
+/**
+ * @param {number} id
+ * @returns {User}
+ */
+export async function deleteUser(id) {
+    const sql = `
+        DELETE FROM users 
+        WHERE id = $1
+        RETURNING id, fullname, email
+    `;
 
+    const values = [id];
+    const { rows } = await pool.query(sql, values);
+    return rows[0];
+}
 
-// const data ="test"
+/**
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<User>}
+ */
+export async function createUser(email, password) {
+    const sql = `
+        INSERT INTO users (email, password)
+        VALUES ($1, $2)
+        RETURNING id, email;
+    `;
 
-// function test(data) {
-//     console.log(`test, ${data}`)
-// }
+    const values = [email, password];
+
+    const { rows } = await pool.query(sql, values);
+    return rows[0];
+}
