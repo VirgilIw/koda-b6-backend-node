@@ -24,7 +24,7 @@ function uploadMiddleware(folder) {
     return multer({
         storage: storage(folder),
         limits: {
-            fileSize: 10 * 1024 * 1024,
+            fileSize: 10 * 1024 * 1024, // limit upload untuk mencegah DoS
         },
     });
 }
