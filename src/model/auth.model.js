@@ -17,7 +17,7 @@ export async function register(data) {
     const sql = `
         INSERT INTO users(fullname, email, password) 
         VALUES($1, $2, $3)
-        RETURNING id,fullname, email;
+        RETURNING id, fullname, email;
     `;
 
     const values = [data.fullname, data.email, data.password];

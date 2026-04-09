@@ -70,6 +70,8 @@ export async function register(req, res) {
         // hash password
         data.password = await GenerateHash(password);
 
+        console.log("BODY:", req.body);
+        console.log("FULLNAME:", data.fullname);
         const user = await authModel.register(data);
 
         const token = GenerateToken({
