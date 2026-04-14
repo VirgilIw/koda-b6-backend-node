@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS  "transaction_products";
+DROP TABLE IF EXISTS "transactions";
+DROP TABLE IF EXISTS "reviews";
+DROP TABLE IF EXISTS "cart";
+DROP TABLE IF EXISTS "product_images";
+DROP TABLE IF EXISTS "images";
+DROP TABLE IF EXISTS "product_variants";
+DROP TABLE IF EXISTS "variants";
+DROP TABLE IF EXISTS "product_sizes";
+DROP TABLE IF EXISTS "sizes";
+DROP TABLE IF EXISTS "product_categories";
+DROP TABLE IF EXISTS "testimonials";
+DROP TABLE IF EXISTS "coupons";
+DROP TABLE IF EXISTS "products";
+DROP TABLE IF EXISTS "categories";
+DROP TABLE IF EXISTS "users";
