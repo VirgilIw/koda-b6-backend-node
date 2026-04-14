@@ -47,5 +47,5 @@ jobs:
                   script: |
                       cd server-virgil-node
                       docker compose pull backend
-                      docker run --rm --network=server-virgil-node-backend_webapps migrate/migrate:latest -source github://virgiliw:${{ secrets.GITHUB_TOKEN }}@virgilIw/koda-b6-backend-node/migrations -database postgresql://postgres:123456@pg:5432/coffeeshop?sslmode=disable up
+                      docker run --rm --network=server-virgil-node-backend_webapps migrate/migrate:latest -source github://virgiliw:${{ secrets.GITHUB_TOKEN }}@virgiliw/koda-b6-backend-node/migrations -database postgresql://postgres:123456@pg:5432/coffeeshop?sslmode=disable up
                       docker compose up backend -d
