@@ -2,41 +2,46 @@ import { VerifyToken } from "../lib/jwt.js";
 import { constants } from "node:http2";
 
 /**
- *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
  */
 export default function auth(req, res, next) {
-    // next ketika berhasil
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({
+        return res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({
             success: false,
-            message: "unauthorized",
+            message: "unauthorized - no header",
         });
-        return;
     }
 
     const prefix = "Bearer ";
-    const isBearer = authHeader?.startsWith(prefix);
-    if (isBearer) {
-        const token = authHeader.slice(prefix.length);
-        const payload = VerifyToken(token);
-        // console.log("AUTH HEADER:", authHeader);
-        // console.log("TOKEN:", token);
-        // console.log("PAYLOAD:", payload);
-        if (payload) {
-            res.locals = payload; // dipakai untuk ambil role
-            next();
-            return;
-        }
+    if (!authHeader.startsWith(prefix)) {
+        return res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({
+            success: false,
+            message: "invalid token format",
+        });
     }
 
-    res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({
-        success: false,
-        message: "unauthorized",
-    });
-    return;
+    const token = authHeader.slice(prefix.length);
+
+    try {
+        const payload = VerifyToken(token);
+
+        if (!payload) {
+            throw new Error("invalid token");
+        }
+        req.user = payload;
+        res.locals.userId = payload.userId;
+        res.locals.role = payload.role;
+
+        next();
+    } catch (err) {
+        console.error("AUTH ERROR:", err.message);
+        return res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({
+            success: false,
+            message: "invalid token",
+        });
+    }
 }
