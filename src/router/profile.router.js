@@ -11,7 +11,7 @@ profileRouter.use(auth);
  *   get:
  *     summary: Get user profile
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     tags: [profile]
  *     responses:
  *       200:
@@ -43,7 +43,7 @@ profileRouter.get("", profileController.getProfile);
  *   patch:
  *     summary: Update user profile
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     tags: [profile]
  *     requestBody:
  *       required: false
