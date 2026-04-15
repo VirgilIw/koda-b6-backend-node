@@ -8,7 +8,7 @@ import { constants } from "node:http2";
  */
 export default function auth(req, res, next) {
     const authHeader = req.headers.authorization;
-
+    console.log("AUTH HEADER:", req.headers.authorization);
     if (!authHeader) {
         return res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({
             success: false,
