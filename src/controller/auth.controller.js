@@ -7,19 +7,30 @@ import { constants } from "node:http2";
 /**
  * @param {import("express").Request} req
  * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
  */
-export async function login(req, res) {
+export async function login(req, res, next) {
     const { email, password } = req.body;
 
     try {
         const user = await userModel.getUserByEmail(email);
+
+        // handle user tidak ditemukan
+        if (!user) {
+            const err = new Error("user not found");
+            err.statusCode = constants.HTTP_STATUS_UNAUTHORIZED;
+            err.isOperational = true;
+            throw err;
+        }
+
         if (await VerifyHash(user.password, password)) {
             const token = GenerateToken({
                 userId: user.id,
                 email: user.email,
                 role: user.role,
             });
-            res.json({
+
+            return res.json({
                 success: true,
                 message: "login success",
                 result: {
@@ -29,39 +40,39 @@ export async function login(req, res) {
                 },
             });
         } else {
-            throw new Error("wrong password");
+            const err = new Error("wrong password");
+            err.statusCode = constants.HTTP_STATUS_UNAUTHORIZED;
+            err.isOperational = true;
+            throw err;
         }
     } catch (error) {
-        res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({
-            success: false,
-            message: "unauthorized",
-            error: error.message,
-        });
+        next(error);
     }
 }
 
 /**
  * @param {import("express").Request} req
  * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
  */
-export async function register(req, res) {
+export async function register(req, res, next) {
     const data = req.body;
 
     try {
         const { password, confirmPassword } = data;
-        // console.log(password, confirmPassword);
+
         if (!password || !confirmPassword) {
-            return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
-                success: false,
-                message: "password and confirm password are required",
-            });
+            const err = new Error("password and confirm password are required");
+            err.statusCode = constants.HTTP_STATUS_BAD_REQUEST;
+            err.isOperational = true;
+            throw err;
         }
 
         if (password !== confirmPassword) {
-            return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
-                success: false,
-                message: "password does not match",
-            });
+            const err = new Error("password does not match");
+            err.statusCode = constants.HTTP_STATUS_BAD_REQUEST;
+            err.isOperational = true;
+            throw err;
         }
 
         // hapus confirmPassword biar gak masuk DB
@@ -72,6 +83,7 @@ export async function register(req, res) {
 
         console.log("BODY:", req.body);
         console.log("FULLNAME:", data.fullname);
+
         const user = await authModel.register(data);
 
         const token = GenerateToken({
@@ -89,10 +101,6 @@ export async function register(req, res) {
             },
         });
     } catch (error) {
-        return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
-            success: false,
-            message: "failed to register",
-            error: error.message,
-        });
+        next(error);
     }
 }
