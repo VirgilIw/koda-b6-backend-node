@@ -54,10 +54,17 @@ export async function getUserById(id) {
     console.log(`CACHE MISS: user:${id}`);
 
     const sql = `
-        SELECT id, email, role 
-        FROM users
-        WHERE id = $1
-    `;
+    SELECT 
+        id,
+        fullname,
+        email,
+        phone,
+        address,
+        picture,
+        role
+    FROM users
+    WHERE id = $1
+`;
 
     const {
         rows: [user],
