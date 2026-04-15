@@ -7,18 +7,32 @@
  */
 
 import { pool } from "../lib/db.js";
+import { redisClient } from "../lib/redis.js";
 
 /**
  *
  * @returns {User[]}
  */
 export async function getAllUsers() {
-    const sql = `
- select id, email, password from users
- order by id asc;`;
+    const cacheKey = "users:all";
 
-    const { rows: user } = await pool.query(sql);
-    return user;
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+        console.log("CACHE HIT");
+        return JSON.parse(cached);
+    }
+
+    const sql = `
+        SELECT id, email, password 
+        FROM users
+        ORDER BY id ASC;
+    `;
+
+    const { rows } = await pool.query(sql);
+
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(rows));
+
+    return rows;
 }
 
 /**
@@ -26,16 +40,34 @@ export async function getAllUsers() {
  * @returns {User}
  */
 export async function getUserById(id) {
+    const cacheKey = `user:${id}`;
+
+    // 1. Cek cache dulu
+    const cachedUser = await redisClient.get(cacheKey);
+
+    if (cachedUser) {
+        console.log("CACHE HIT");
+        return JSON.parse(cachedUser);
+    }
+
+    console.log("CACHE MISS");
+
+    // 2. Kalau tidak ada di cache → query DB
     const sql = `
- select id, email, role from users
- where id = $1
- order by id asc;`;
+        SELECT id, email, role 
+        FROM users
+        WHERE id = $1
+    `;
 
     const values = [id];
 
     const {
         rows: [user],
     } = await pool.query(sql, values);
+
+    if (!user) return null;
+
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(user));
 
     return user;
 }
@@ -75,6 +107,9 @@ export async function deleteUser(id) {
 
     const values = [id];
     const { rows } = await pool.query(sql, values);
+
+    await redisClient.del(`user:${id}`);
+
     return rows[0];
 }
 
