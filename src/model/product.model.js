@@ -1,5 +1,11 @@
 import { pool } from "../lib/db.js";
 
+/**
+ * Get paginated list of products
+ *
+ * @param {number} [page=1] - Page number
+ * @returns {Promise<Array<Object>>}
+ */
 export async function getProducts(page = 1) {
     const limit = 6;
     const offset = (page - 1) * limit;
@@ -42,6 +48,13 @@ LIMIT $1 OFFSET $2;
     return rows;
 }
 
+/**
+ * Delete transaction_products by product ID
+ *
+ * @param {import("pg").PoolClient} client
+ * @param {number} productId
+ * @returns {Promise<void>}
+ */
 export async function deleteTransactionProducts(client, productId) {
     await client.query(
         `DELETE FROM transaction_products WHERE product_id = $1`,
@@ -49,40 +62,88 @@ export async function deleteTransactionProducts(client, productId) {
     );
 }
 
+/**
+ * Delete product categories by product ID
+ *
+ * @param {import("pg").PoolClient} client
+ * @param {number} productId
+ * @returns {Promise<void>}
+ */
 export async function deleteProductCategories(client, productId) {
     await client.query(`DELETE FROM product_categories WHERE product_id = $1`, [
         productId,
     ]);
 }
 
+/**
+ * Delete product sizes by product ID
+ *
+ * @param {import("pg").PoolClient} client
+ * @param {number} productId
+ * @returns {Promise<void>}
+ */
 export async function deleteProductSizes(client, productId) {
     await client.query(`DELETE FROM product_sizes WHERE product_id = $1`, [
         productId,
     ]);
 }
 
+/**
+ * Delete product variants by product ID
+ *
+ * @param {import("pg").PoolClient} client
+ * @param {number} productId
+ * @returns {Promise<void>}
+ */
 export async function deleteProductVariants(client, productId) {
     await client.query(`DELETE FROM product_variants WHERE product_id = $1`, [
         productId,
     ]);
 }
 
+/**
+ * Delete product images by product ID
+ *
+ * @param {import("pg").PoolClient} client
+ * @param {number} productId
+ * @returns {Promise<void>}
+ */
 export async function deleteProductImages(client, productId) {
     await client.query(`DELETE FROM product_images WHERE product_id = $1`, [
         productId,
     ]);
 }
 
+/**
+ * Delete product testimonials by product ID
+ *
+ * @param {import("pg").PoolClient} client
+ * @param {number} productId
+ * @returns {Promise<void>}
+ */
 export async function deleteProductTestimonials(client, productId) {
     await client.query(`DELETE FROM testimonials WHERE product_id = $1`, [
         productId,
     ]);
 }
 
+/**
+ * Delete product from products table by ID
+ *
+ * @param {import("pg").PoolClient} client
+ * @param {number} productId
+ * @returns {Promise<void>}
+ */
 export async function deleteProductById(client, productId) {
     await client.query(`DELETE FROM products WHERE id = $1`, [productId]);
 }
 
+/**
+ * Delete product and all related data using transaction
+ *
+ * @param {number} productId
+ * @returns {Promise<void>}
+ */
 export async function deleteProduct(productId) {
     const client = await pool.connect();
 
@@ -116,7 +177,20 @@ export async function deleteProduct(productId) {
 
 /**
  * Search products with filters & pagination
+ *
  * @param {Object} reqQuery
+ * @param {number|string} [reqQuery.page]
+ * @param {string} [reqQuery.name]
+ * @param {string} [reqQuery.q]
+ * @param {string} [reqQuery.category]
+ * @param {number|string} [reqQuery.minPrice]
+ * @param {number|string} [reqQuery.maxPrice]
+ * @param {string} [reqQuery.isFlashSale]
+ * @param {string} [reqQuery.isBuy1Get1]
+ * @param {string} [reqQuery.isBirthdayPackage]
+ * @param {string} [reqQuery.cheap]
+ * @param {string} [reqQuery.recommended]
+ *
  * @returns {Promise<{ products: Object[], totalCount: number }>}
  */
 export async function searchProducts(reqQuery) {
