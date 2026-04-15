@@ -31,7 +31,7 @@ mainRouter.get("/", function (req, res) {
 // products
 /**
  * @openapi
- * /main/product/reviews:
+ * /reviews:
  *   get:
  *     tags:
  *       - products
@@ -40,30 +40,12 @@ mainRouter.get("/", function (req, res) {
  *       200:
  *         description: Success
  */
-mainRouter.get("/product/reviews", mainController.getReviews);
+mainRouter.get("/reviews", mainController.getReviews);
+
 
 /**
  * @openapi
- * /main/product/search:
- *   get:
- *     tags:
- *       - products
- *     summary: Search products
- *     parameters:
- *       - in: query
- *         name: q
- *         schema:
- *           type: string
- *         description: Keyword for searching products
- *     responses:
- *       200:
- *         description: Success
- */
-mainRouter.get("/product/search", mainController.searchProducts);
-
-/**
- * @openapi
- * /main/product/recommended:
+ * /recommended-products:
  *   get:
  *     tags:
  *       - products
@@ -72,27 +54,6 @@ mainRouter.get("/product/search", mainController.searchProducts);
  *       200:
  *         description: Success
  */
-mainRouter.get("/product/recommended", mainController.getRecommendedProducts);
-
-/**
- * @openapi
- * /main/product/{id}:
- *   get:
- *     tags:
- *       - products
- *     summary: Get product detail
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Success
- *       404:
- *         description: Product not found
- */
-mainRouter.get("/product/:id", mainController.getDetailProductById);
+mainRouter.get("/recommended-products", mainController.getRecommendedProducts);
 
 export default mainRouter;
