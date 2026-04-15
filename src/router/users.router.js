@@ -8,7 +8,7 @@ const userRouter = Router();
  * /admin/users:
  *   get:
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     tags:
  *       - users
  *     summary: Get all users
@@ -39,7 +39,7 @@ userRouter.get("/", userController.getAllUsers);
  * /admin/users/{id}:
  *   get:
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     tags:
  *       - users
  *     summary: Get user by ID
@@ -63,7 +63,7 @@ userRouter.get("/:id", userController.getUserById);
  * /admin/users/test/{email}:
  *   get:
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     tags:
  *       - users
  *     summary: Get user by email
@@ -88,7 +88,7 @@ userRouter.get("/test/:email", userController.getUserByEmail);
  * /admin/users:
  *   post:
  *     security:
- *       - bearerAuth: []    
+ *       - BearerAuth: []    
  *     tags:
  *       - users
  *     summary: Create new user
@@ -120,7 +120,7 @@ userRouter.post("", userController.createUser);
  * /admin/users/{id}:
  *   delete:
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     tags:
  *       - users
  *     summary: Delete user
