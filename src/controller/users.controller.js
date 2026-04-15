@@ -6,19 +6,17 @@ import { constants } from "node:http2";
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
-export async function getAllUsers(req, res) {
+export async function getAllUsers(req, res, next) {
     try {
         const result = await userModel.getAllUsers();
 
-        res.status(constants.HTTP_STATUS_OK).json({
-            succes: true,
+        return res.status(constants.HTTP_STATUS_OK).json({
+            success: true,
             message: "success get all data",
             result: result,
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
@@ -27,30 +25,34 @@ export async function getAllUsers(req, res) {
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
-export async function getUserById(req, res) {
+export async function getUserById(req, res, next) {
     try {
         const { id: idStr } = req.params;
         const id = parseInt(idStr);
 
         if (isNaN(id)) {
-            return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
-                success: false,
-                message: "invalid user id",
-            });
+            const err = new Error("invalid user id");
+            err.statusCode = constants.HTTP_STATUS_BAD_REQUEST;
+            err.isOperational = true;
+            throw err;
         }
 
         const user = await userModel.getUserById(id);
 
-        res.status(constants.HTTP_STATUS_OK).json({
+        if (!user) {
+            const err = new Error("user not found");
+            err.statusCode = constants.HTTP_STATUS_NOT_FOUND;
+            err.isOperational = true;
+            throw err;
+        }
+
+        return res.status(constants.HTTP_STATUS_OK).json({
             success: true,
             message: "get user by id success",
             result: user,
         });
     } catch (err) {
-        res.status(constants.HTTP_STATUS_NOT_FOUND).json({
-            success: false,
-            message: err.message,
-        });
+        next(err);
     }
 }
 // kita pakai should bind di go, untuk memahami di main express.json()
@@ -60,22 +62,26 @@ export async function getUserById(req, res) {
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
-export async function getUserByEmail(req, res) {
+export async function getUserByEmail(req, res, next) {
     try {
         const email = req.params.email;
 
         const data = await userModel.getUserByEmail(email);
 
-        res.json({
+        if (!data) {
+            const err = new Error("user not found");
+            err.statusCode = constants.HTTP_STATUS_NOT_FOUND;
+            err.isOperational = true;
+            throw err;
+        }
+
+        return res.json({
             success: true,
             message: "success get data by email",
             result: data,
         });
     } catch (err) {
-        res.status(constants.HTTP_STATUS_NOT_FOUND).json({
-            success: false,
-            message: err.message,
-        });
+        next(err);
     }
 }
 
@@ -84,55 +90,47 @@ export async function getUserByEmail(req, res) {
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
-export async function createUser(req, res) {
+export async function createUser(req, res, next) {
     try {
         const data = req.body;
-        console.log(req.body);
+
         const newUser = await userModel.createUser(data);
 
-        res.status(constants.HTTP_STATUS_CREATED).json({
+        return res.status(constants.HTTP_STATUS_CREATED).json({
             success: true,
             message: "create user success",
             result: newUser,
         });
     } catch (err) {
-        res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
-            success: false,
-            message: err.message,
-        });
+        next(err);
     }
 }
-
-
 
 /**
  *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
-export async function deleteUser(req, res) {
+export async function deleteUser(req, res, next) {
     try {
         const { id: idStr } = req.params;
         const id = parseInt(idStr);
 
         if (isNaN(id)) {
-            return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
-                success: false,
-                message: "invalid user id",
-            });
+            const err = new Error("invalid user id");
+            err.statusCode = constants.HTTP_STATUS_BAD_REQUEST;
+            err.isOperational = true;
+            throw err;
         }
 
         const user = await userModel.deleteUser(id);
 
-        res.status(constants.HTTP_STATUS_OK).json({
+        return res.status(constants.HTTP_STATUS_OK).json({
             success: true,
             message: "delete user success",
             result: user,
         });
     } catch (err) {
-        res.status(constants.HTTP_STATUS_NOT_FOUND).json({
-            success: false,
-            message: err.message,
-        });
+        next(err);
     }
 }
