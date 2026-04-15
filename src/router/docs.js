@@ -16,14 +16,20 @@ const options = {
         ],
         components: {
             securitySchemes: {
-                bearerAuth: {
+                BearerAuth: {
                     type: "http",
                     scheme: "bearer",
                     bearerFormat: "JWT",
-                    description: "Masukkan JWT token saja (tanpa Bearer)",
+                    description: "Masukkan token dengan format: Bearer <JWT>",
                 },
             },
         },
+
+        security: [
+            {
+                BearerAuth: [],
+            },
+        ],
     },
     apis: ["./src/router/*.router.js"],
 };
