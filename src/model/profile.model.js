@@ -1,5 +1,23 @@
 import { pool } from "../lib/db.js";
 
+/**
+ *
+ * @param {number} id - User ID
+ * @returns {Promise<{
+ *   id: number,
+ *   fullname: string,
+ *   email: string,
+ *   password: string,
+ *   phone: string,
+ *   address: string,
+ *   picture: string,
+ *   role: string,
+ *   created_at: string,
+ *   updated_at: string,
+ *   deleted_at: string | null,
+ *   lastlogin_at: string | null
+ * } | undefined>}
+ */
 export async function getProfile() {
     const query = `
     SELECT 
